@@ -58,6 +58,26 @@ class Indicator:
 
         print( dt.now(), "Completed demark9")
 
+    def KDJRange(self, tickers=[]):
+        runquery = self.db.cursor()
+        if not tickers:
+            tickers = self.mysql.get_tickers_id()
+        for ticker in tickers:
+            # if ticker <= 'WELL':
+            #     continue
+            runquery.callproc("p_kdj_range", tuple([ticker]))
+            self.db.commit()
+
+            print(dt.now(), "Completed p_kdj_range. ", ticker)
+
+    def RSIRange(self):
+        runquery = self.db.cursor()
+
+        runquery.callproc("p_rsi_range")
+        self.db.commit()
+
+        print(dt.now(), "Completed p_rsi_range. ")
+
     def KDJDaysInRange(self):
         runquery = self.db.cursor()
         runquery.callproc("p_set_all_kdj_daysInRange", tuple([0]))
@@ -86,6 +106,83 @@ class Indicator:
 
         print( dt.now(), "Completed obv")
 
+    def rsi_deviate(self, tickers=[]):
+        runquery = self.db.cursor()
+        if not tickers:
+            tickers = self.mysql.get_tickers_id()
 
+        for ticker in tickers:
+            # if ticker < 'WELL':
+            #     continue
+            # get last dayid and max dayid in dayprice
+            ind_dayid = 0
+            query = "SELECT Max(dayid) FROM dayprice WHERE code = '" + ticker + "'"
+
+            runquery.execute(query)
+            data = runquery.fetchall()
+            if data[0][0] != None:
+                maxDayId = data[0][0]
+
+            while ind_dayid < maxDayId - 6:
+                query = "SELECT Max(last_dayid) FROM deviate_last_date WHERE code = '" + ticker + \
+                        "' AND indicator = 'RSI Deviate'"
+                runquery.execute(query)
+                data = runquery.fetchall()
+                if data[0][0] != None:
+                    ind_dayid = data[0][0]
+                else:
+                    ind_dayid = 40
+
+                runquery.callproc("p_ind_rsi_deviate", tuple([ticker, 3]))
+                self.db.commit()
+                # print(dt.now(), "Completed rsi deviate for ", ticker, 3, ind_dayid)
+
+                runquery.callproc("p_ind_rsi_deviate", tuple([ticker, 5]))
+                self.db.commit()
+                # print(dt.now(), "Completed rsi deviate for ", ticker, 5, ind_dayid)
+            print(dt.now(), "Completed rsi deviate for ", ticker)
+
+        print(dt.now(), "Completed rsi deviate ")
+
+    def kdj_deviate(self, tickers=[]):
+        runquery = self.db.cursor()
+        if not tickers:
+            tickers = self.mysql.get_tickers_id()
+
+        for ticker in tickers:
+            # get last dayid and max dayid in dayprice
+            ind_dayid = 0
+            query = "SELECT Max(dayid) FROM dayprice WHERE code = '" + ticker + "'"
+
+            runquery.execute(query)
+            data = runquery.fetchall()
+            if data[0][0] != None:
+                maxDayId = data[0][0]
+
+            while ind_dayid < maxDayId - 5:
+                query = "SELECT Max(last_dayid) FROM deviate_last_date WHERE code = '" + ticker + \
+                        "' AND indicator = 'KDJ Deviate'"
+                runquery.execute(query)
+                data = runquery.fetchall()
+                if data[0][0] != None:
+                    ind_dayid = data[0][0]
+                else:
+                    ind_dayid = 40
+
+                runquery.callproc("p_ind_kdj_deviate", tuple([ticker, 3]))
+                self.db.commit()
+                # print(dt.now(), "Completed kdj deviate for ", ticker, 3, ind_dayid)
+
+                runquery.callproc("p_ind_kdj_deviate", tuple([ticker, 5]))
+                self.db.commit()
+                # print(dt.now(), "Completed kdj deviate for ", ticker, 5, ind_dayid)
+            print(dt.now(), "Completed kdj deviate for ", ticker)
+
+        print(dt.now(), "Completed kdj deviate ")
+
+#
 # myInd = Indicator()
-# myInd.Obv(myInd.mysql.get_tickers_id())
+# myInd.KDJRange(myInd.mysql.get_tickers_id())
+# myInd.RSIRange()
+
+

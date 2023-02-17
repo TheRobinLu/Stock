@@ -253,9 +253,8 @@ class TradeData:
                     row.append(a)
                     row = row + market.to_list()
                     runquery.execute(query, tuple(row))
-
-                    print("Importing min ", tickerid, " for ", a)
                     self.db.commit()
+                print("Importing min ", tickerid)
 
         return
 
@@ -306,8 +305,8 @@ class TradeData:
                         print('get a error')
                         pass
 
-                    print("Importing 2mins ", tickerid, " for ", a)
                     self.db.commit()
+                print("Importing 2mins ", tickerid)
 
         return
 
@@ -506,4 +505,11 @@ class TradeData:
                     print("Importing realtime dayprice", tickerid, " of today")
             # ema
         return
+
+    def delete_today(self):
+        runquery = self.db.cursor()
+
+        runquery.callproc("p_delete_today")
+        self.db.commit()
+        print(dt.now(), "Completed delete data of today for ")
 

@@ -38,6 +38,11 @@ class DB:
             tickers.append(''.join(a))
         return tickers
 
+    def ntest(self):
+        s = {3, 2, 6, 7, 2, 5, 3, 1, -1, 4}
+        n = [val for val in s if val % 2 != 0]
+        print(len(n))
+        print(n)
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -46,3 +51,5 @@ if __name__ == '__main__':
 myDB = DB()
 
 print(myDB.get_tickers_id())
+
+myDB.ntest()
